@@ -53,7 +53,6 @@ def GetBoletos(data_atual, coligada):
                     tag_name = first_child.name
                     elementos = new_dataset.find_all(tag_name)
                     boletos = []
-                    boleto_null = []
                     for elemento in elementos:
                         codigo = elemento.find("IPTE")
                         if codigo != None:
@@ -62,20 +61,14 @@ def GetBoletos(data_atual, coligada):
                                 "SACADO": elemento.find("SACADO").text,
                                 "CODIGOBARRA": codigo.text
                             })
-                        else:
-                            boleto_null.append({
-                                "IDBOLETO": elemento.find("IDBOLETO").text,
-                                "SACADO": elemento.find("SACADO").text,
-                                "NOMECLIFOR": elemento.find("NOMECLIFOR").text
-                            })
                     return boletos
-            return f"Data set não encontrado"
+            return False, f"Data set não encontrado"
         else:
-            return f"Requisição para {response.url} retornou: {response.reason}"
+            return False, f"Requisição para {response.url} retornou: {response.reason}"
     except re.exceptions.RequestException as e:
-        return f"Requisição retornou erros: {e}"
+        return False, f"Requisição retornou erros: {e}"
     except Exception as e:
-        return f"Arquivo com erros: {e}"
+        return False, f"Arquivo com erros: {e}"
 
 def GetContatoBoleto(coligada):
     payload = mountPayload(codSentenca="wsContatoForBol", codSistema="F", parameters=f"COLIGADA={coligada}")
@@ -117,13 +110,13 @@ def GetContatoBoleto(coligada):
                                     nome = nome_aluno.text.lower()
                         usuarios.append(append_usuario(cfo=cfo,nome=nome,telefone=telefone))
                     return usuarios
-            return f"Data set não encontrado"
+            return False, f"Data set não encontrado"
         else:
-            return f"Requisição para {response.url} retornou: {response.reason}"
+            return False, f"Requisição para {response.url} retornou: {response.reason}"
     except re.exceptions.RequestException as e:
-        return f"Requisição retornou erros: {e}"
+        return False, f"Requisição retornou erros: {e}"
     except Exception as e:
-        return f"Arquivo com erros: {e}"
+        return False, f"Arquivo com erros: {e}"
 
 def append_usuario(cfo, nome, telefone):
     nome, *sobrenome = nome.split()
